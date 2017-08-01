@@ -8,6 +8,8 @@ using namespace std;
 class IPv4_addr {
 public:
 	IPv4_addr() {}
+	IPv4_addr(const char* str) { *this = str; }
+	IPv4_addr(const string& str) { *this = str; }
 	void clear() { _ip = 0; }
 	void hex_dump();
 	void ascii_dump();

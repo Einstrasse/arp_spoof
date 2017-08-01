@@ -4,15 +4,20 @@
 #include <cstdio>
 #include <cstdlib>
 #include "IPv4_addr.h"
+#include "infofetcher.h"
 
 using namespace std;
+
 #define LOG_LEVEL_DEBUG 1
 #define LOG_LEVEL_INFO 0
 int main(int argc, char *argv[]) {
 	char *log_level_str = getenv("LOG_LEVEL");
 	int log_level = LOG_LEVEL_INFO;
-	vector<string> sender_ips;
-	vector<string> target_ips;
+	// vector<string> sender_ips;
+	// vector<string> target_ips;
+	IPv4_addr my_ip_addr;
+	vector<IPv4_addr> sender_ips;
+	vector<IPv4_addr> target_ips;
 	IPv4_addr test_ip;
 	char *ifname;
 	if (argc < 4) {
@@ -34,15 +39,21 @@ int main(int argc, char *argv[]) {
 
 	if (log_level >= LOG_LEVEL_DEBUG) {
 		for (int i=0; i < sender_ips.size(); i++) {
-			cout << "sender_ip[" << i << "] - " << sender_ips[i] << endl;
+			// cout << "sender_ip[" << i << "] - " << sender_ips[i] << endl;
+			cout << "sender_ip[" << i << "] - ";
+			sender_ips[i].ascii_dump();
+			cout << endl;
 		}
 		for (int i=0; i < target_ips.size(); i++) {
-			cout << "target_ip[" << i << "] - " << target_ips[i] << endl;
+			// cout << "target_ip[" << i << "] - " << target_ips[i] << endl;
+			cout << "target_ip[" << i << "] - ";
+			target_ips[i].ascii_dump();
+			cout << endl;
 		}
 	}
 
-	test_ip = argv[2];
-	test_ip.hex_dump();
-	test_ip.ascii_dump();
-
+	get_my_ip_str(ifname, my_ip_addr);
+	cout << "My IPv4 address is ";
+	my_ip_addr.ascii_dump();
+	cout << endl;
 }

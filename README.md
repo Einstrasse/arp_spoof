@@ -22,6 +22,21 @@ $ apt install -y g++
 $ make
 ```
 ## Execution Command
+Run mode
 ```
 $ ./arp_spoof <interface> <sender ip 1> <target ip 1> [<sender ip 2> <target ip 2>...]
+```
+Development/Debug mode
+```
+$ LOG_LEVEL=1 ./arp_spoof <interface> <sender ip 1> <target ip 1> [<sender ip 2> <target ip 
+```
+
+## Fetching My IP / MAC addr
+Fetching IPv4 addr cmd
+```
+/bin/bash -c 'ifconfig enp7s0' | grep 'inet ' | awk '{print $2}' | cut -d':' -f2
+```
+Fetching Mac addr cmd
+```
+/bin/bash -c "ifconfig enp7s0" | grep -oh '[0-9a-zA-Z][0-9a-zA-Z]:[0-9a-zA-Z][0-9a-zA-Z]:[0-9a-zA-Z][0-9a-zA-Z]:[0-9a-zA-Z][0-9a-zA-Z]:[0-9a-zA-Z][0-9a-zA-Z]:[0-9a-zA-Z][0-9a-zA-Z]'
 ```
