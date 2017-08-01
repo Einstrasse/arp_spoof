@@ -1,5 +1,5 @@
-#ifndef __IP_H__
-#define __IP_H__
+#ifndef __IPV4_ADDR_H__
+#define __IPV4_ADDR_H__
 
 #include <cstdint>
 #include <string>
@@ -21,4 +21,5 @@ public:
 private:
 	uint32_t _ip;
 };
+
 #endif

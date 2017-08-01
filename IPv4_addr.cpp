@@ -1,3 +1,6 @@
+#ifndef __IPV4_ADDR_CPP__
+#define __IPV4_ADDR_CPP__
+
 #include "IPv4_addr.h"
 #include <arpa/inet.h>
 #include <iostream>
@@ -44,3 +47,5 @@ void IPv4_addr::ascii_dump() {
 	printf("%hhu.%hhu.%hhu.%hhu", hex[0], hex[1], hex[2], hex[3]);	
 	// printf("IPv4 address ascii dump %hhu.%hhu.%hhu.%hhu\n", hex[0], hex[1], hex[2], hex[3]);	
 }
+
+#endif
