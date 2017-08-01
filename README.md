@@ -13,8 +13,15 @@ C++ language with packet capture library
 - pcap library
 - Linux (Debian recommended)
 - g++
-
+```
+$ apt install -y libpcap-dev
+$ apt install -y g++
+```
 ## Compilation Command
 ```
-make
+$ make
+```
+## Execution Command
+```
+$ ./arp_spoof <interface> <sender ip 1> <target ip 1> [<sender ip 2> <target ip 2>...]
 ```
