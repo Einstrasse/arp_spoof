@@ -48,4 +48,9 @@ void IPv4_addr::ascii_dump() {
 	// printf("IPv4 address ascii dump %hhu.%hhu.%hhu.%hhu\n", hex[0], hex[1], hex[2], hex[3]);	
 }
 
+void IPv4_addr::write_mem(uint8_t *mem) {
+	uint32_t __ip = htonl(_ip);
+	memcpy(mem, &__ip, 4);
+}
+
 #endif

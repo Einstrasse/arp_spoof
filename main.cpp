@@ -5,20 +5,27 @@
 #include <cstdlib>
 #include "IPv4_addr.h"
 #include "infofetcher.h"
+#include "arp.h"
 
 using namespace std;
 
 #define LOG_LEVEL_DEBUG 1
 #define LOG_LEVEL_INFO 0
+#define PCAP_ERR_BUF_SIZE 1024
+#define PACK_BUF_SIZE 1024 * 64
+
 int main(int argc, char *argv[]) {
 	char *log_level_str = getenv("LOG_LEVEL");
+	pcap_t *handle;
 	int log_level = LOG_LEVEL_INFO;
 	// vector<string> sender_ips;
 	// vector<string> target_ips;
+	char errbuf[PCAP_ERR_BUF_SIZE];
 	IPv4_addr my_ip_addr;
 	MAC_addr my_mac_addr;
 	vector<IPv4_addr> sender_ips;
 	vector<IPv4_addr> target_ips;
+	vector<MAC_addr> sender_macs;
 	IPv4_addr test_ip;
 	char *ifname;
 	if (argc < 4) {
@@ -54,11 +61,28 @@ int main(int argc, char *argv[]) {
 	}
 
 	get_my_ip_str(ifname, my_ip_addr);
-	cout << "My IPv4 address is ";
-	my_ip_addr.ascii_dump();
-	cout << endl;
 	get_my_mac_str(ifname, my_mac_addr);
-	cout << "My MAC address is ";
-	my_mac_addr.hex_dump();
+	if (log_level >= LOG_LEVEL_DEBUG) {
+		cout << "My IPv4 address is ";
+		my_ip_addr.ascii_dump();
+		cout << endl;
+		cout << "My MAC address is ";
+		my_mac_addr.hex_dump();
+		cout << endl;
+	}
+
+	handle = pcap_open_live(ifname, PACK_BUF_SIZE, 0, 1, errbuf);
+	if (handle == NULL) {
+		fprintf(stderr, "Interface open err %s: %s\n", ifname, errbuf);
+		exit(EXIT_FAILURE);
+	}
+	if (log_level >= LOG_LEVEL_DEBUG) {
+		printf("Interface open success %s\n", ifname);
+	}
+
+	cout << "my_mac_addr -> "; my_mac_addr.hex_dump();
+	cout << endl << "my_ip_addr -> "; my_ip_addr.ascii_dump();
+	cout << endl << "sender_ip -> "; sender_ips[0].ascii_dump();
 	cout << endl;
+	send_arp_request(handle, my_mac_addr, my_ip_addr, sender_ips[0]);
 }

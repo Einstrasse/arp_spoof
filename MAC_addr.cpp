@@ -19,4 +19,8 @@ void MAC_addr::hex_dump() {
 	printf("%02X:%02X:%02X:%02X:%02X:%02X", _mac[0],_mac[1],_mac[2],_mac[3],_mac[4],_mac[5]);
 }
 
+void MAC_addr::write_mem(uint8_t *mem) {
+	memcpy(mem, _mac, 6);
+}
+
 #endif
