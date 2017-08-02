@@ -93,6 +93,7 @@ void thread_relaying() {
 					dst_mac.hex_dump();
 					cout << endl;
 					dst_mac.write_mem(eth_hdr->ether_dhost);
+					my_mac_addr.write_mem(eth_hdr->ether_shost);
 					if (pcap_sendpacket(handle, pkt_data, header_ptr->len) == -1) {
 						fprintf(stderr, "pcap_sendpacket err %s\n", pcap_geterr(handle));
 					} else {
@@ -118,11 +119,13 @@ void thread_relaying() {
 					// break;
 				}
 				if (sender_ip.is_equal(dst_ip)) {
+					//return packet
 					MAC_addr dst_mac = sender_macs[i];
 					cout << "Real dest MAC: ";
 					dst_mac.hex_dump();
 					cout << endl;
 					dst_mac.write_mem(eth_hdr->ether_dhost);
+					my_mac_addr.write_mem(eth_hdr->ether_shost);
 					if (pcap_sendpacket(handle, pkt_data, header_ptr->len) == -1) {
 						fprintf(stderr, "pcap_sendpacket err %s\n", pcap_geterr(handle));
 					} else {
