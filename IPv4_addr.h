@@ -16,6 +16,8 @@ public:
 	void write_mem(uint8_t *mem);
 	void parse_mem(uint8_t *mem);
 	void parse_mem(char *mem);
+	bool is_equal(uint32_t val);
+	bool is_equal(IPv4_addr addr);
 
 	IPv4_addr& operator = (const IPv4_addr& rhs) { _ip = rhs._ip; return *this; }
 	IPv4_addr& operator = (const uint32_t rhs) { _ip = rhs; return *this; }

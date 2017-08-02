@@ -61,4 +61,11 @@ void IPv4_addr::parse_mem(char *mem) {
 	_ip = ntohl(_ip);
 }
 
+bool IPv4_addr::is_equal(uint32_t val) {
+	return _ip == val;
+}
+bool IPv4_addr::is_equal(IPv4_addr addr) {
+	return _ip == addr._ip;
+}
+
 #endif

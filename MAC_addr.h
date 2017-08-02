@@ -15,6 +15,9 @@ public:
 	void clear() { memset(_mac, 0, 6); }
 	void hex_dump();
 	void write_mem(uint8_t *mem);
+	void parse_mem(char *mem);
+	void parse_mem(uint8_t *mem);
+	bool is_equal(char *mem);
 
 	MAC_addr& operator = (const MAC_addr& rhs) { memcpy(_mac, rhs._mac, 6); return *this; }
 	//MAC_addr& operator = (const uint8_t *rhs) { memcpy(_mac, rhs, 6); return *this; }

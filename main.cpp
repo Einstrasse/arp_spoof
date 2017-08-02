@@ -78,19 +78,15 @@ int main(int argc, char *argv[]) {
 		printf("Interface open success %s\n", ifname);
 	}
 
-	char dummy[4];
-	dummy[0] = 0x1;
-	dummy[1] = 0x2;
-	dummy[2] = 0x3;
-	dummy[3] = 0x4;
-	IPv4_addr dummy_ip;
-	dummy_ip.parse_mem(dummy);
-	cout << "--------------------" << endl;
-	dummy_ip.ascii_dump();
-	cout << "--------------------" << endl;
-	// cout << "my_mac_addr -> "; my_mac_addr.hex_dump();
-	// cout << endl << "my_ip_addr -> "; my_ip_addr.ascii_dump();
-	// cout << endl << "sender_ip -> "; sender_ips[0].ascii_dump();
-	// cout << endl;
-	// send_arp_request(handle, my_mac_addr, my_ip_addr, sender_ips[0]);
+	
+	cout << "my_mac_addr -> "; my_mac_addr.hex_dump();
+	cout << endl << "my_ip_addr -> "; my_ip_addr.ascii_dump();
+	cout << endl << "sender_ip -> "; sender_ips[0].ascii_dump();
+	cout << endl;
+	send_arp_request(handle, my_mac_addr, my_ip_addr, sender_ips[0]);
+
+	MAC_addr tmp_mac;
+	recv_arp_reply(handle, sender_ips[0], tmp_mac);
+	cout << "mac got -> "; tmp_mac.hex_dump();
+	cout << endl;
 }
