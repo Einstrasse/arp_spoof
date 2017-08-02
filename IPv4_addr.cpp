@@ -52,5 +52,13 @@ void IPv4_addr::write_mem(uint8_t *mem) {
 	uint32_t __ip = htonl(_ip);
 	memcpy(mem, &__ip, 4);
 }
+void IPv4_addr::parse_mem(uint8_t *mem) {
+	memcpy(&_ip, mem, 4);
+	_ip = ntohl(_ip);
+}
+void IPv4_addr::parse_mem(char *mem) {
+	memcpy(&_ip, mem, 4);
+	_ip = ntohl(_ip);
+}
 
 #endif

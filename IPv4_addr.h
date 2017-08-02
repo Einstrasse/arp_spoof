@@ -14,6 +14,8 @@ public:
 	void hex_dump();
 	void ascii_dump();
 	void write_mem(uint8_t *mem);
+	void parse_mem(uint8_t *mem);
+	void parse_mem(char *mem);
 
 	IPv4_addr& operator = (const IPv4_addr& rhs) { _ip = rhs._ip; return *this; }
 	IPv4_addr& operator = (const uint32_t rhs) { _ip = rhs; return *this; }
