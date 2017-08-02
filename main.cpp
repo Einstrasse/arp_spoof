@@ -78,15 +78,47 @@ int main(int argc, char *argv[]) {
 		printf("Interface open success %s\n", ifname);
 	}
 
-	
-	cout << "my_mac_addr -> "; my_mac_addr.hex_dump();
-	cout << endl << "my_ip_addr -> "; my_ip_addr.ascii_dump();
-	cout << endl << "sender_ip -> "; sender_ips[0].ascii_dump();
-	cout << endl;
-	send_arp_request(handle, my_mac_addr, my_ip_addr, sender_ips[0]);
 
-	MAC_addr tmp_mac;
-	recv_arp_reply(handle, sender_ips[0], tmp_mac);
-	cout << "mac got -> "; tmp_mac.hex_dump();
-	cout << endl;
+	if (log_level >= LOG_LEVEL_DEBUG) {
+		printf("Gathering MAC address of sender IP addr owner...\n");
+	}
+	for (u_int i = 0; i < sender_ips.size(); i++) {
+		auto sender_ip = sender_ips[i];
+		if (log_level >= LOG_LEVEL_DEBUG) {
+			printf("[%2u/%2lu]Gathering for IPv4_addr: ", i, sender_ips.size());
+			sender_ip.ascii_dump();
+			putchar('\n');
+			printf("Try to Send ARP request...\n");
+		}
+		int send_status = send_arp_request(handle, my_mac_addr, my_ip_addr, sender_ip);
+		if (send_status == EXIT_SUCCESS) {
+			if (log_level >= LOG_LEVEL_DEBUG) {
+				printf("Send ARP request success\n");
+			}
+		} else {
+			fprintf(stderr, "Send ARP request failed\n");
+			return EXIT_FAILURE;
+		}
+		MAC_addr tmp_mac;
+		if (log_level >= LOG_LEVEL_DEBUG) {
+			printf("Try to Receive ARP reqly...\n");
+		}
+		int recv_status = recv_arp_reply(handle, sender_ip, tmp_mac);
+		if (recv_status == EXIT_SUCCESS) {
+			if (log_level >= LOG_LEVEL_DEBUG) {
+				printf("Receive ARP reply success\n");
+			}
+		} else {
+			fprintf(stderr, "Receive ARP reply failed\n");
+			return EXIT_FAILURE;		
+		}
+		sender_macs.push_back(tmp_mac);
+		if (log_level >= LOG_LEVEL_DEBUG) {
+			printf("* Store MAC address ");
+			tmp_mac.hex_dump();
+			cout << " = ";
+			sender_ip.ascii_dump();
+			cout << endl;
+		}
+	}
 }
