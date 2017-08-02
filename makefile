@@ -1,7 +1,7 @@
 arp_spoof: main.o IPv4_addr.o infofetcher.o MAC_addr.o arp.o
-	g++ main.o IPv4_addr.o infofetcher.o MAC_addr.o arp.o -o arp_spoof -std=c++11 -lpcap -Wall
+	g++ main.o IPv4_addr.o infofetcher.o MAC_addr.o arp.o -o arp_spoof -std=c++11 -lpcap -Wall -lpthread
 main.o: main.cpp
-	g++ -o main.o -c main.cpp -std=c++11 -lpcap -Wall 
+	g++ -o main.o -c main.cpp -std=c++11 -lpcap -Wall -lpthread
 IPv4_addr.o: IPv4_addr.h
 	g++ -o IPv4_addr.o -c IPv4_addr.cpp -std=c++11 -Wall
 infofetcher.o: infofetcher.cpp
