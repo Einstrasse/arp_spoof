@@ -67,5 +67,16 @@ bool IPv4_addr::is_equal(uint32_t val) {
 bool IPv4_addr::is_equal(IPv4_addr addr) {
 	return _ip == addr._ip;
 }
+string IPv4_addr::to_string() {
+	char buf[32];
+	uint32_t __ip = htonl(_ip);
+	const char* ret = inet_ntop(AF_INET, &__ip, buf, sizeof(buf));
+	if (ret == NULL) {
+		fprintf(stderr, "IPv4_addr to_string error\n");
+		return string("");
+	}
+	string str(buf);
+	return str;
+}
 
 #endif

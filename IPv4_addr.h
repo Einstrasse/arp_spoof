@@ -19,6 +19,8 @@ public:
 	bool is_equal(uint32_t val);
 	bool is_equal(IPv4_addr addr);
 
+	string to_string();
+	operator string() { return this->to_string(); };
 	IPv4_addr& operator = (const IPv4_addr& rhs) { _ip = rhs._ip; return *this; }
 	IPv4_addr& operator = (const uint32_t rhs) { _ip = rhs; return *this; }
 	IPv4_addr& operator = (const char* rhs);
