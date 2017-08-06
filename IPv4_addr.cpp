@@ -81,6 +81,12 @@ IPv4_addr::operator struct in_addr() {
 	struct in_addr ret;
 	ret.s_addr = _ip;
 	return ret;
-};
+}
+
+char* IPv4_addr::to_string(char* mem, int buf_size) {
+	uint32_t __ip = htonl(_ip);
+	const char* ret = inet_ntop(AF_INET, &__ip, mem, buf_size);
+	return (char*)ret;
+}
 
 #endif

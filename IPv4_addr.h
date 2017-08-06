@@ -19,8 +19,9 @@ public:
 	void parse_mem(char *mem);
 	bool is_equal(uint32_t val);
 	bool is_equal(IPv4_addr addr);
-
 	string to_string();
+	char* to_string(char* mem, int buf_size);
+
 	operator string() { return this->to_string(); }; // string = IPv4_addr case
 	operator uint32_t() { return this->_ip; } // uint32_t = IPv4_addr case
 	operator struct in_addr(); // struct in_addr = IPv4_addr case
