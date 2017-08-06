@@ -20,11 +20,12 @@ public:
 	bool is_equal(IPv4_addr addr);
 
 	string to_string();
-	operator string() { return this->to_string(); };
+	operator string() { return this->to_string(); }; // string = IPv4_addr case
+	operator uint32_t() { return this->_ip; } // uint32_t = IPv4_addr case
 	IPv4_addr& operator = (const IPv4_addr& rhs) { _ip = rhs._ip; return *this; }
-	IPv4_addr& operator = (const uint32_t rhs) { _ip = rhs; return *this; }
+	IPv4_addr& operator = (const string& rhs); // IPv4_addr = string case
+	IPv4_addr& operator = (const uint32_t rhs) { _ip = rhs; return *this; } // IPv4_addr = uint32_t case
 	IPv4_addr& operator = (const char* rhs);
-	IPv4_addr& operator = (const string& rhs);
 private:
 	uint32_t _ip;
 };
